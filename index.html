@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en-ca">
+<head>
+    <meta charset="UTF-8" />
+    <title>Better Image Clipboard</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://kit.fontawesome.com/82a893e0ed.js" crossorigin="anonymous"></script>
+    <script src="js/main.js"></script>
+
+    <!-- SEO/Embed -->
+    <meta property="og:title" content="Better Image Clipboard" />
+    <meta property="og:description" content="You can use Better Image Clipboard to send nitro emojis in discord without nitro" />
+    <meta name="description" content="You can use Better Image Clipboard to send nitro emojis in discord without nitro" />
+<!--    <meta property="og:image" content="https://imageclipboard.neocities.org/Resources/Example.png" />-->
+    <meta name="theme-color" content="#3399ff" />
+    <meta name="twitter:card" content="summary_large_image" />
+</head>
+<body>
+    <header>
+        <nav id="main-nav">
+            <ul>
+                <li class="edit-wrapper non-edit-tool">
+                    <a href="#" title="Edit"><span class="sr-only">Edit</span><i class="far fa-edit fa-fw" aria-hidden="true"></i></a>
+                </li>
+                <li class="save-wrapper edit-tool" style="display: none;">
+                    <a href="#" title="Save and Exit"><span class="sr-only">Save</span><i class="far fa-save fa-fw" aria-hidden="true"></i></a>
+                </li>
+                <li class="url-wrapper edit-tool" style="display: none;">
+                    <label>
+                        <input type="text" name="url" id="url" placeholder="URL">
+                    </label>
+                </li>
+                <li class="group-wrapper edit-tool" style="display: none;">
+                    <label>
+                        <input type="text" name="group" id="group" list="group-list" placeholder="Category">
+                        <datalist id="group-list">
+                            <option value="Uncategorized">Uncategorized</option>
+                        </datalist>
+                    </label>
+                </li>
+                <li class="create-wrapper edit-tool" style="display: none;">
+                    <a href="#" title="Add Image to Category"><span class="sr-only">Create</span><i class="far fa-plus-large fa-fw" aria-hidden="true"></i></a>
+                </li>
+                <li class="search-wrapper non-edit-tool">
+                    <label>
+                        <input type="text" name="search" id="search" placeholder="Search">
+                    </label>
+                </li>
+                <li class="options-wrapper">
+                    <a href="#" title="Options"><span class="sr-only">Options</span><i class="far fa-bars fa-fw" aria-hidden="true"></i></a>
+                </li>
+            </ul>
+        </nav>
+        <nav id="edit-nav" class="selection-tool" style="display: none">
+            <ul>
+                <li class="img-preview">
+                    <img src="https://cdn.discordapp.com/emojis/1041176563951075389.webp?size=44" height="32" width="32">
+                </li>
+                <li class="move-up-wrapper">
+                    <a href="#"><span class="sr-only">Up</span><i class="far fa-square-caret-up fa-fw" aria-hidden="true"></i></a>
+                </li>
+                <li class="move-down-wrapper">
+                    <a href="#"><span class="sr-only">Down</span><i class="far fa-square-caret-down fa-fw" aria-hidden="true"></i></a>
+                </li>
+                <li class="move-cat-wrapper">
+                    <label>
+                        <input type="text" name="move-cat" id="move-cat" list="group-list" placeholder="Category">
+                    </label>
+                </li>
+                <li class="move-cat-button-wrapper">
+                    <a href="#"><span class="sr-only">Move Cat.</span><i class="far fa-square-arrow-right fa-fw" aria-hidden="true"></i></a>
+                </li>
+                <li class="delete-wrapper">
+                    <a href="#"><span class="sr-only">Delete</span><i class="far fa-trash-can fa-fw" aria-hidden="true"></i></a>
+                </li>
+            </ul>
+        </nav>
+        <hr class="non-selection-tool" />
+    </header>
+    <main></main>
+    <footer>
+        Made by LinuxPony with
+        <span class="sr-only">coffee</span><i class="far fa-coffee" aria-hidden="true"></i>
+        and
+        <span class="sr-only">love</span><i class="far fa-heart" aria-hidden="true"></i>
+        <br>
+        MIT License
+    </footer>
+    <div id="options-model">
+        <div class="dialogue">
+            <h2>Options</h2>
+            <hr>
+            <label class="file-import-wrapper">
+                File to Import
+                <input id="file-import" type="file">
+            </label>
+            <a href="#" id="import" class="button" title="Carefull with this. No validation is performed. Backup is recommend if you have existing emotes.">
+                <i class="far fa-arrow-down-to-square fa-fw" aria-hidden="true"></i> Import Data
+            </a>
+            <hr>
+            <a href="#" id="export" class="button">
+                <i class="far fa-arrow-up-from-square fa-fw" aria-hidden="true"></i> Export Data
+            </a>
+            <a href="#" id="dedupe" class="button">
+                <i class="far fa-wrench fa-fw" aria-hidden="true"></i> Fix Duplicates
+            </a>
+            <a href="#" id="delete-all" class="button danger">
+                <i class="far fa-diamond-exclamation fa-fw" aria-hidden="true"></i> Delete All
+            </a>
+        </div>
+    </div>
+    <div id="toast-model">
+        <div class="dialogue">
+            <h2>
+                <i class="far fa-check fa-fw ok" aria-hidden="true" style="display: none"></i><i class="far fa-diamond-exclamation fa-fw error" aria-hidden="true" style="display: none"></i>
+                <span class="message">This is a Toast</span>
+            </h2>
+        </div>
+    </div>
+</body>
+</html>
