@@ -139,10 +139,12 @@ nav input[type=text]{
 }
 .icon-group img {
     cursor: pointer;
+    max-width: 160px;
+    max-height: 160px;
 }
 
-/* OPTIONS MODEL */
-#options-model {
+/* MODELS */
+.popup-model {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -156,27 +158,33 @@ nav input[type=text]{
     background: rgba(0,0,0,0.25);
     transition: opacity 250ms;
 }
-#options-model:not(.active) {
+.popup-model:not(.active) {
     opacity: 0;
     pointer-events: none;
 }
-#options-model .dialogue{
+.popup-model .dialogue{
     background: #36393f;
     border-radius: 1em;
     width: 100%;
     max-width: 300px;
     padding: 1em;
 }
-#options-model .dialogue h2{
+#options-model .dialogue{
+    max-width: 300px;
+}
+#backup-model .dialogue{
+    max-width: 600px;
+}
+.popup-model .dialogue h2{
     text-align: center;
 }
-#options-model .file-import-wrapper{
+.popup-model .file-import-wrapper{
     text-align: center;
     display: block;
     background: #2f3136;
     padding: 0.25em;
 }
-#options-model .file-import-wrapper input[type=file]{
+.popup-model .file-import-wrapper input[type=file]{
     display: block;
     width: 100%;
     padding-top: 0.25em;

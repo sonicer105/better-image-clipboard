@@ -175,11 +175,43 @@ function lpHideOptionsMenu(){
     return false;
 }
 
+function lpShowBackupMenu(){
+    $('#options-model').removeClass('active');
+    $('#backup-model').addClass('active');
+    return false;
+}
+
+function lpHideBackupMenu(){
+    $('#backup-model').removeClass('active');
+    $('#options-model').addClass('active');
+    return false;
+}
+
 function lpExportData(e){
-    $(e.target)
-        .attr("href", `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(window.appState.data))}`)
-        .attr('download', 'backup.json')
-    toastSuccess("Items exported!");
+    let targetType = $(e.target).data('target') ?? 'file';
+    if(targetType === 'file') {
+        $(e.target)
+            .attr("href", `data:text/json;charset=utf-8,${btoa(LZW.compress(JSON.stringify(window.appState.data)))}`)
+            .attr('download', 'backup.lzw.b64')
+        toastSuccess("Items exported!");
+    } else if (targetType === 'file-legacy') {
+        $(e.target)
+            .attr("href", `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(window.appState.data))}`)
+            .attr('download', 'backup.json')
+        toastSuccess("Legacy items exported!");
+    } else if (targetType === 'copy') {
+        navigator.clipboard.writeText(target.attr("src")).then(function (){
+            toastSuccess("Export copied to clipboard!");
+        }, function (){
+            toastError("Failed to export to clipboard. Permission error?");
+        });
+    } else if (targetType === 'copy-legacy') {
+        navigator.clipboard.writeText(target.attr("src")).then(function (){
+            toastSuccess("Legacy export copied to clipboard!");
+        }, function (){
+            toastError("Failed to export to clipboard. Permission error?");
+        });
+    }
 }
 
 function lpImportData(){
@@ -187,7 +219,14 @@ function lpImportData(){
     if(file !== undefined){
         let fr = new FileReader();
         fr.onload = function () {
-            window.appState.data = Object.assign(window.appState.data, JSON.parse(fr.result));
+            let successType;
+            try {
+                window.appState.data = Object.assign(window.appState.data, JSON.parse(fr.result));
+                successType = "Legacy items imported!";
+            } catch (e) {
+                window.appState.data = Object.assign(window.appState.data, JSON.parse(LZW.decompress(atob(fr.result))))
+                successType = "Items imported!";
+            }
             window.appState.targetGroup = 'Uncategorized';
             window.appState.targetIndex = 0;
             $('.selection-tool').hide();
@@ -195,7 +234,7 @@ function lpImportData(){
             lpMaybeSaveToLocalStorage();
             lpDrawImages();
             $('#file-import').val(null);
-            toastSuccess("Items imported!");
+            toastSuccess(successType);
         }
         fr.readAsText(file);
     }
@@ -271,6 +310,10 @@ jQuery(function ($){
     $('.options-wrapper a').on('click', lpShowOptionsMenu);
     $('#options-model').on('click', lpHideOptionsMenu);
     $('#options-model .dialogue').on('click', function (e){ e.stopPropagation() });
+    $('#backup-model').on('click', lpHideBackupMenu);
+    $('#backup-model .dialogue').on('click', function (e){ e.stopPropagation() });
+    $('#backup').on('click', lpShowBackupMenu);
+    $('#close-back').on('click', lpHideBackupMenu);
     $('#export').on('click', lpExportData);
     $('#import').on('click', lpImportData);
     $('#dedupe').on('click', lpDedupe);
@@ -283,3 +326,89 @@ jQuery(function ($){
     });
     lpDrawImages();
 })
+
+
+//LZW Compression/Decompression for Strings
+//SOURCE: https://rosettacode.org/wiki/LZW_compression#JavaScript
+var LZW = {
+    /**
+     * @param {string} uncompressed
+     */
+    compress: function (uncompressed) {
+        "use strict";
+        // Build the dictionary.
+        var i,
+            dictionary = {},
+            c,
+            wc,
+            w = "",
+            result = [],
+            dictSize = 256;
+        for (i = 0; i < 256; i += 1) {
+            dictionary[String.fromCharCode(i)] = i;
+        }
+
+        for (i = 0; i < uncompressed.length; i += 1) {
+            c = uncompressed.charAt(i);
+            wc = w + c;
+            //Do not use dictionary[wc] because javascript arrays
+            //will return values for array['pop'], array['push'] etc
+            // if (dictionary[wc]) {
+            if (dictionary.hasOwnProperty(wc)) {
+                w = wc;
+            } else {
+                result.push(dictionary[w]);
+                // Add wc to the dictionary.
+                dictionary[wc] = dictSize++;
+                w = String(c);
+            }
+        }
+
+        // Output the code for w.
+        if (w !== "") {
+            result.push(dictionary[w]);
+        }
+        return result;
+    },
+
+    /**
+     * @param {string} compressed
+     */
+    decompress: function (compressed) {
+        "use strict";
+        // Build the dictionary.
+        var i,
+            dictionary = [],
+            w,
+            result,
+            k,
+            entry = "",
+            dictSize = 256;
+        for (i = 0; i < 256; i += 1) {
+            dictionary[i] = String.fromCharCode(i);
+        }
+
+        w = String.fromCharCode(compressed[0]);
+        result = w;
+        for (i = 1; i < compressed.length; i += 1) {
+            k = compressed[i];
+            if (dictionary[k]) {
+                entry = dictionary[k];
+            } else {
+                if (k === dictSize) {
+                    entry = w + w.charAt(0);
+                } else {
+                    return null;
+                }
+            }
+
+            result += entry;
+
+            // Add w+entry[0] to the dictionary.
+            dictionary[dictSize++] = w + entry.charAt(0);
+
+            w = entry;
+        }
+        return result;
+    }
+}
