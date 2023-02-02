@@ -184,10 +184,16 @@ nav input[type=text]{
     background: #2f3136;
     padding: 0.25em;
 }
-.popup-model .file-import-wrapper input[type=file]{
+.popup-model .file-import-wrapper input[type=file],
+.popup-model .file-import-wrapper textarea {
     display: block;
     width: 100%;
-    padding-top: 0.25em;
+    margin-top: 1em;
+}
+.popup-model .row-2 {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: auto;
 }
 #toast-model {
     display: flex;

@@ -191,54 +191,71 @@ function lpExportData(e){
     let targetType = $(e.target).data('target') ?? 'file';
     if(targetType === 'file') {
         $(e.target)
-            .attr("href", `data:text/json;charset=utf-8,${btoa(LZW.compress(JSON.stringify(window.appState.data)))}`)
+            .attr("href", `data:text/json;charset=utf-8,${btoa(JSON.stringify(LZW.compress(JSON.stringify(window.appState.data))))}`)
             .attr('download', 'backup.lzw.b64')
-        toastSuccess("Items exported!");
+        toastSuccess("LZW items exported!");
     } else if (targetType === 'file-legacy') {
         $(e.target)
             .attr("href", `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(window.appState.data))}`)
             .attr('download', 'backup.json')
-        toastSuccess("Legacy items exported!");
+        toastSuccess("JSON items exported!");
     } else if (targetType === 'copy') {
-        navigator.clipboard.writeText(target.attr("src")).then(function (){
-            toastSuccess("Export copied to clipboard!");
+        navigator.clipboard.writeText(btoa(JSON.stringify(LZW.compress(JSON.stringify(window.appState.data))))).then(function (){
+            toastSuccess("LZW export copied to clipboard!");
         }, function (){
             toastError("Failed to export to clipboard. Permission error?");
         });
+        return false;
     } else if (targetType === 'copy-legacy') {
-        navigator.clipboard.writeText(target.attr("src")).then(function (){
-            toastSuccess("Legacy export copied to clipboard!");
+        navigator.clipboard.writeText(JSON.stringify(window.appState.data)).then(function (){
+            toastSuccess("JSON export copied to clipboard!");
         }, function (){
             toastError("Failed to export to clipboard. Permission error?");
         });
+        return false;
     }
+    return true;
 }
 
-function lpImportData(){
+function lpOpenImportFile(){
     let file = $('#file-import').prop('files')[0];
     if(file !== undefined){
         let fr = new FileReader();
         fr.onload = function () {
-            let successType;
             try {
-                window.appState.data = Object.assign(window.appState.data, JSON.parse(fr.result));
-                successType = "Legacy items imported!";
+                lpImportData(JSON.parse(fr.result))
+                toastSuccess("JSON items imported!");
             } catch (e) {
-                window.appState.data = Object.assign(window.appState.data, JSON.parse(LZW.decompress(atob(fr.result))))
-                successType = "Items imported!";
+                lpImportData(JSON.parse(LZW.decompress(JSON.parse(atob(fr.result)))))
+                toastSuccess("LZW Items imported!");
             }
-            window.appState.targetGroup = 'Uncategorized';
-            window.appState.targetIndex = 0;
-            $('.selection-tool').hide();
-            $('.non-selection-tool').show();
-            lpMaybeSaveToLocalStorage();
-            lpDrawImages();
-            $('#file-import').val(null);
-            toastSuccess(successType);
         }
         fr.readAsText(file);
     }
     return false;
+}
+
+function lpParseImportField(){
+    let fieldVal = $("#import-field").val()
+    try {
+        lpImportData(JSON.parse(fieldVal))
+        toastSuccess("JSON items imported!");
+    } catch (e) {
+        lpImportData(JSON.parse(LZW.decompress(JSON.parse(atob(fieldVal)))))
+        toastSuccess("LZW Items imported!");
+    }
+    return false;
+}
+
+function lpImportData(jsonData){
+    window.appState.data = Object.assign(window.appState.data, jsonData);
+    window.appState.targetGroup = 'Uncategorized';
+    window.appState.targetIndex = 0;
+    $('.selection-tool').hide();
+    $('.non-selection-tool').show();
+    lpMaybeSaveToLocalStorage();
+    lpDrawImages();
+    $('#file-import').val(null);
 }
 
 function lpDeleteAll() {
@@ -314,8 +331,9 @@ jQuery(function ($){
     $('#backup-model .dialogue').on('click', function (e){ e.stopPropagation() });
     $('#backup').on('click', lpShowBackupMenu);
     $('#close-back').on('click', lpHideBackupMenu);
-    $('#export').on('click', lpExportData);
-    $('#import').on('click', lpImportData);
+    $('.button.export').on('click', lpExportData);
+    $('#import-file').on('click', lpOpenImportFile);
+    $('#import-text').on('click', lpParseImportField);
     $('#dedupe').on('click', lpDedupe);
     $('#delete-all').on('click', lpDeleteAll);
     $('#search').on("keypress", function(e) {
