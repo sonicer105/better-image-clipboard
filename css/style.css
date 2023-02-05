@@ -127,6 +127,12 @@ nav input[type=text]{
 }
 
 /* MAIN */
+body:not(.is-editing) #instructions-edit {
+    display: none;
+}
+body.is-editing #instructions-no-edit {
+    display: none;
+}
 .icon-group {
     border: 1px solid #1f2124;
     border-radius: 0.25em;
@@ -137,10 +143,47 @@ nav input[type=text]{
     font-size: 1em;
     margin-bottom: 0.5em;
 }
+.icon-group .icons {
+    display: flex;
+    flex-wrap: wrap;
+}
 .icon-group img {
     cursor: pointer;
     max-width: 160px;
     max-height: 160px;
+    padding: 5px;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 5px;
+}
+.icon-group img:hover {
+    background-color: #747c8b;
+}
+.icon-group img.active {
+    background: #8A8A8A;
+}
+body.is-editing .cat-title {
+    display: none;
+}
+body:not(.is-editing) .cat-controls {
+    display: none;
+}
+body:not(.is-editing) .rename-cat {
+    display: none;
+}
+.cat-controls a:link, .cat-controls a:visited {
+    color: #fff;
+}
+.cat-controls a:hover, .cat-controls a:active {
+    color: #ccc;
+}
+
+/* FOOTER */
+footer a:link, footer a:visited {
+    color: #ccc;
+}
+footer a:active, footer a:hover {
+    color: #fff;
 }
 
 /* MODELS */
